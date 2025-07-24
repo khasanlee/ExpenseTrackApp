@@ -1,6 +1,6 @@
 import { View, Text } from "react-native";
 
-function RecentExpense() {
+function RecentExpenses() {
     return (
         <View>
             <Text>Recent Expenses</Text>
@@ -8,4 +8,4 @@ function RecentExpense() {
     )
 }
 
-export default RecentExpense;
+export default RecentExpenses;

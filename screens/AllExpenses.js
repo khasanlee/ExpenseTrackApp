@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-function AllExpense() {
+function AllExpenses() {
     return (
         <View>
         <Text>All Expenses</Text>
@@ -8,4 +8,4 @@ function AllExpense() {
     );
 }
 
-export default AllExpense;
+export default AllExpenses;
