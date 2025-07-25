@@ -32,7 +32,7 @@ const DUMMY_EXPENSES = [
         id: 'e5',
         description: 'Apple Watch',
         amount: 231.99,
-        date: new Date('2025-03-02')
+        date: new Date('2025-01-02')
     },
     {
         id: 'e6',
