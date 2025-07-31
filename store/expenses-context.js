@@ -1,4 +1,4 @@
-import {  createContext, useReducer } from "react";
+import {  act, createContext, useReducer } from "react";
 
 export const ExpensesContext = createContext({
   expenses: [],
@@ -11,10 +11,10 @@ export const ExpensesContext = createContext({
 function expensesReducer(state, action) {
   switch (action.type) {
     case "ADD":
-        const id = new Date().toISOString() + Math.random().toString();
-        return[{...action.payload, id: id}, ...state ];
+        return[action.payload, ...state ];
     case "SET": 
-        return action.payload
+        const inverted = action.payload.reverse();
+        return inverted
     case "UPDATE":
         const updatableExpenseIndex = state.findIndex(
           (expense) => expense.id === action.payload.id
