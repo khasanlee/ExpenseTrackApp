@@ -1,4 +1,5 @@
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Input from "./Input";
 import { useState } from "react";
 import Button from "../UI/Button";
@@ -12,7 +13,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
       isValid: true,
     },
     date: {
-      value: defaultValues ? getFormattedDate(defaultValues.date) : "",
+      value: defaultValues ? defaultValues.date : new Date(),
       isValid: true,
     },
     description: {
@@ -20,6 +21,8 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
       isValid: true,
     },
   });
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   function inputChangedHandler(inputIdentifier, enteredValue) {
     setInputs((curInputs) => {
@@ -30,15 +33,29 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
     });
   }
 
+  function dateChangeHandler(event, selectedDate) {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      inputChangedHandler("date", selectedDate);
+    }
+  }
+
+  function showDatePickerHandler() {
+    setShowDatePicker(true);
+  }
+
   function submitHandler() {
     const expenseData = {
       amount: +inputs.amount.value,
-      date: new Date(inputs.date.value),
-      description: inputs.description.value,
+      date: inputs.date.value,
+      description: inputs.description.value.trim(),
     };
 
     const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
-    const dateIsValid = expenseData.date.toString() !== "Invalid Date";
+    const dateIsValid =
+      expenseData.date instanceof Date && !isNaN(expenseData.date);
     const descriptionIsValid = expenseData.description.trim().length > 0;
 
     if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
@@ -78,18 +95,50 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
             value: inputs.amount.value,
           }}
         />
-        <Input
-          style={styles.rowInput}
-          invalid={!inputs.date.isValid}
-          label={"Date"}
-          textInputConfig={{
-            placeholder: "YYYY-MM-DD",
-            maxLength: 10,
-            onChangeText: inputChangedHandler.bind(this, "date"),
-            value: inputs.date.value,
-          }}
-        />
+        <View style={[styles.rowInput, styles.dateInputContainer]}>
+          <Text
+            style={[
+              styles.dateLabel,
+              !inputs.date.isValid && styles.invalidLabel,
+            ]}
+          >
+            Date
+          </Text>
+          <Button
+            mode={"flat"}
+            onPress={showDatePickerHandler}
+            style={[
+              styles.dateButton,
+              !inputs.date.isValid && styles.invalidButton,
+            ]}
+          >
+            {inputs.date.value instanceof Date
+              ? getFormattedDate(inputs.date.value)
+              : "Select Date"}
+          </Button>
+        </View>
       </View>
+
+      {showDatePicker && (
+        <View style={styles.datePickerContainer}>
+          <DateTimePicker
+            value={
+              inputs.date.value instanceof Date ? inputs.date.value : new Date()
+            }
+            mode="date"
+            display={'spinner'}
+            onChange={dateChangeHandler}
+            maximumDate={new Date()}
+            textColor="white"
+          />
+          <View style={styles.iosDatePickerButtonsContainer}>
+            <Button mode="flat" onPress={() => setShowDatePicker(false)}>
+              Cancel
+            </Button>
+            <Button onPress={() => setShowDatePicker(false)}>Confirm</Button>
+          </View>
+        </View>
+      )}
       <Input
         invalid={!inputs.description.isValid}
         label={"Description"}
@@ -138,6 +187,40 @@ const styles = StyleSheet.create({
   rowInput: {
     flex: 1,
   },
+  dateInputContainer: {
+    marginHorizontal: 4,
+    marginVertical: 8,
+  },
+  dateLabel: {
+    fontSize: 13,
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 4,
+  },
+  dateButton: {
+    backgroundColor: GlobalStyles.colors.primary100,
+    borderRadius: 6,
+    paddingVertical: 2,
+    color: GlobalStyles.colors.primary700,
+
+  },
+  invalidLabel: {
+    color: GlobalStyles.colors.error500,
+  },
+  invalidButton: {
+    backgroundColor: GlobalStyles.colors.error50,
+  },
+  iosDatePickerButtonsContainer: {
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  datePickerContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    marginVertical: 10,
+    padding: 5,
+  },
+
   errorText: {
     textAlign: "center",
     color: GlobalStyles.colors.error500,
