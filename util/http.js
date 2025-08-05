@@ -1,7 +1,8 @@
 import axios from "axios";
+import Constants from 'expo-constants';
 
-const BACKEND_URL =
-  "https://expense-tracker-app-14b30-default-rtdb.firebaseio.com";
+const { BACKEND_URL } = Constants.expoConfig.extra;
+
 
 export async function storeExpense(expenseData) {
   const response = await axios.post(
